@@ -1,10 +1,10 @@
+// MeteorRain.tsx
 'use client'
 
 import React, { useEffect } from 'react';
 import { gsap } from 'gsap';
 
-
-const MeteorRain: React.FC = () => {
+export default function MeteorRain() {
   useEffect(() => {
     const meteors = gsap.utils.toArray<HTMLElement>('.meteor');
     meteors.forEach((meteor) => {
@@ -16,30 +16,37 @@ const MeteorRain: React.FC = () => {
     gsap.fromTo(
       meteor,
       {
-        x: 'random(-200, 1000)',
+        x: 'random(-200, 1200)',
         y: 'random(-200, -50)',
         opacity: 0,
+        scale: 'random(0.4, 0.7)',
+        filter: 'brightness(0.5)',
       },
       {
-        x: 'random(-100, 800)',
-        y: 'random(300, 600)',
+        x: 'random(-200, 1200)',
+        y: 'random(600, 800)',
         opacity: 1,
-        duration: 'random(0.8, 2)',
-        ease: 'power1.in',
+        scale: 'random(0.8, 1.2)',
+        filter: 'brightness(2.5)',
+        duration: 'random(1.5, 3.5)',
+        ease: 'power1.inOut',
         onComplete: () => animateMeteor(meteor),
       }
     );
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
-      {Array.from({ length: 20 }).map(() => (
+    <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+      {Array.from({ length: 30 }).map((_, index) => (
         <div
-          className="meteor absolute w-1 h-8 bg-gradient-to-b from-gray-400 to-transparent opacity-50 transform rotate-45"
+          key={index}
+          className="meteor absolute w-1 h-12 bg-gradient-to-b from-yellow-400 via-red-500 to-transparent opacity-70 transform rotate-45"
+          style={{
+            transform: `rotate(${Math.random() * 45}deg)`,
+            boxShadow: '0 0 8px rgba(255, 215, 0, 0.5)',
+          }}
         />
       ))}
     </div>
   );
-};
-
-export default MeteorRain;
+}

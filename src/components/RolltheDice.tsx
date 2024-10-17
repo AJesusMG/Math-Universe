@@ -8,5 +8,5 @@ interface RolltheDiceProps {
 }
 
 export default function RolltheDice({ turnoJugador }: RolltheDiceProps) {
-  return <h2 className="text-3xl text-text-900 text-center">Lanza el dado <br /> <span className="font-bold text-text-900">Jugador {turnoJugador}</span></h2>;
+  return <h2 className="text-3xl text-text-900 text-center">Turno del <br /> <span className="font-bold text-text-900">Jugador {turnoJugador}</span></h2>;
 }
