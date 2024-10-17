@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Poppins } from "@next/font/google"; // Importar la fuente de Google
 import localFont from "next/font/local";
 import "./globals.css";
 
+// Mantienes tus fuentes locales
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -11,6 +13,13 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+});
+
+// Importas la fuente de Poppins desde Google Fonts
+const poppins = Poppins({
+  weight: ["400", "700"], // Define los pesos que vas a usar
+  subsets: ["latin"], // Subconjunto de caracteres
+  variable: "--font-poppins", // Variable CSS para la fuente
 });
 
 export const metadata: Metadata = {
@@ -26,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
       >
         {children}
       </body>
