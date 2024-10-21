@@ -42,10 +42,11 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased py-16`}
+        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased md:py-16 sm:py-4`}
       >
         {children}
       </body>
+
     </html>
   );
 }
