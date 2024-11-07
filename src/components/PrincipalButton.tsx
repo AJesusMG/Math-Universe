@@ -8,6 +8,7 @@ export default function PrincipalButton() {
   const router = useRouter();
 
   const handleClick = () => {
+    localStorage.clear
     router.push("/no-players");
   };
 

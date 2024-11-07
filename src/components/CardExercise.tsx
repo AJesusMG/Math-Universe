@@ -1,108 +1,104 @@
-'use client';
-
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardBody, Input } from "@nextui-org/react";
 import { gsap } from "gsap";
+import { useRouter } from "next/navigation";
+import QuestionPool from "./QuestionPool";
 
-export default function CardExercise() {
+// Define la interfaz para el tipo de cada pregunta
+interface Question {
+  question: string;
+  answer: number;
+}
+
+interface CardExerciseProps {
+  turnoJugador: number;
+  numJugadores: number;
+  onNextTurn: () => void;
+  onPointsCalculated: (points: number) => void;
+  numQuestions: number;
+}
+
+export default function CardExercise({
+  turnoJugador,
+  numJugadores,
+  onNextTurn,
+  onPointsCalculated,
+  numQuestions,
+}: CardExerciseProps) {
   const [answer, setAnswer] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [bonusPoints, setBonusPoints] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
-
+  const [questions, setQuestions] = useState<Question[]>([]); // Añadimos el tipo Question aquí
   const router = useRouter();
 
-  const questions = [
-    { question: "¿Cuánto es 2 + 2?", answer: 4 },
-    { question: "¿Cuánto es 5 + 3?", answer: 8 },
-    { question: "¿Cuánto es 10 - 6?", answer: 4 },
-  ];
+  useEffect(() => {
+    const loadedQuestions: Question[] = QuestionPool({ numQuestions });
+    setQuestions(loadedQuestions);
+  }, [numQuestions]);
 
   useEffect(() => {
     if (timeLeft > 0 && !isComplete) {
       const timer = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
-        console.log("Tiempo restante:", timeLeft); // Verifica el tiempo restante
       }, 1000);
-
       return () => clearTimeout(timer);
     } else if (timeLeft === 0) {
       handleTimeOut();
     }
   }, [timeLeft, isComplete]);
 
+  const calculateTimeAdjustment = () => 10;
+  const calculatePoints = () => 50;
+
+  const showPointsAnimation = () => {
+    gsap.to(".bonus-points", {
+      opacity: 1,
+      y: -20,
+      duration: 1,
+      onComplete: () => {
+        gsap.to(".bonus-points", { opacity: 0, y: 0, duration: 1 });
+      }
+    });
+  };
+
   const handleSubmit = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      const correctAnswer = questions[currentQuestion].answer;
+      const correctAnswer = questions[currentQuestion]?.answer;
       const timeAdjustment = calculateTimeAdjustment();
 
       if (parseInt(answer) === correctAnswer) {
         setTimeLeft((prev) => prev + timeAdjustment);
         const pointsEarned = calculatePoints();
-        setBonusPoints(pointsEarned);
+        setTotalPoints((prev) => prev + pointsEarned);
         showPointsAnimation();
 
         if (currentQuestion < questions.length - 1) {
           setCurrentQuestion(currentQuestion + 1);
         } else {
           setIsComplete(true);
-          redirectAfterDelay();
+          onNextTurn();
         }
       } else {
         setTimeLeft((prev) => Math.max(prev - 5, 0));
       }
-
       setAnswer("");
     }
   };
 
-  const calculatePoints = () => {
-    const basePoints = 50;
-    const bonus = Math.floor(Math.random() * 50);
-    return basePoints + bonus;
-  };
-
-  const calculateTimeAdjustment = () => {
-    const maxBonus = 10;
-    const minBonus = 5;
-    return timeLeft > 45 ? maxBonus : minBonus;
-  };
-
-  const showPointsAnimation = () => {
-    const element = document.querySelector(".bonus-points");
-    const randomX = Math.floor(Math.random() * 200) - 100;
-    const randomY = Math.floor(Math.random() * 200) - 100;
-
-    gsap.fromTo(
-      element,
-      { opacity: 0, x: randomX, y: randomY, scale: 0.5 },
-      {
-        opacity: 1,
-        x: 0,
-        y: 0,
-        scale: 1,
-        duration: 1,
-        onComplete: () => {
-          gsap.to(element, { opacity: 0, duration: 1, delay: 1 });
-        },
-      }
-    );
-  };
-
   const handleTimeOut = () => {
     setIsComplete(true);
-    setTimeout(() => {
-      router.push('/rolldice');
-    }, 2000);
+    onNextTurn();
   };
 
-  const redirectAfterDelay = () => {
-    setTimeout(() => {
-      router.push('/rolldice');
-    }, 2000);
-  };
+  useEffect(() => {
+    if (isComplete) {
+      onPointsCalculated(totalPoints);
+      const nextTurn = turnoJugador % numJugadores === 0 ? numJugadores : (turnoJugador % numJugadores);
+      router.push(`/rolldice/?turnoJugador=${nextTurn}&numJugadores=${numJugadores}`);
+    }
+  }, [isComplete, totalPoints]);
 
   return (
     <div className="flex flex-col items-center gap-4 relative">
@@ -110,21 +106,20 @@ export default function CardExercise() {
         <h1 className="text-center text-secondary font-bold text-3xl">{timeLeft}s</h1>
       </div>
 
-
       <div className="bonus-points text-3xl text-yellow-300 absolute z-50">
-        {bonusPoints > 0 ? `+${bonusPoints} pts` : ""}
+        {totalPoints > 0 ? `+${totalPoints} pts` : ""}
       </div>
 
       <Card className="py-4 w-96 h-64 bg-primary-500 z-10">
         <CardBody className="flex flex-col gap-8 py-2 justify-center items-center">
           {isComplete ? (
             <h1 className="text-3xl text-white text-center">
-              {timeLeft === 0 ? "Perdiste, es turno del jugador 2." : "¡Felicidades! Terminaste de resolver los ejercicios. Ahora es el turno del Jugador 2."}
+              {timeLeft === 0 ? "Perdiste. Turno del siguiente jugador." : "¡Felicidades! Turno del siguiente jugador."}
             </h1>
           ) : (
             <>
               <h1 className="text-3xl text-white text-center">
-                {questions[currentQuestion].question}
+                {questions[currentQuestion]?.question}
               </h1>
               <Input
                 type="number"
