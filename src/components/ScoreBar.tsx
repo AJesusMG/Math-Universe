@@ -5,18 +5,34 @@ import { Button } from '@nextui-org/react';
 import gsap from 'gsap';
 import { useRouter } from 'next/navigation';
 
-export default function ScoreBars() {
-  const bar1Ref = useRef<HTMLDivElement>(null);
-  const bar2Ref = useRef<HTMLDivElement>(null);
-  const bar3Ref = useRef<HTMLDivElement>(null);
+interface Player {
+  id: number;
+  score: number;
+}
+
+interface ScoreBarsProps {
+  players: Player[];
+}
+
+export default function ScoreBars({ players }: ScoreBarsProps) {
+  // Usamos React.RefObject en lugar de una función de referencia directa
+  const barRefs = useRef<(HTMLDivElement | null)[]>([]); // Referencias a las barras de puntuación
   const router = useRouter();
 
   useEffect(() => {
     const tl = gsap.timeline();
-    tl.fromTo(bar1Ref.current, { scaleY: 0 }, { scaleY: 1, height: '25vh', duration: 1.5, ease: 'power4.out' });
-    tl.fromTo(bar2Ref.current, { scaleY: 0 }, { scaleY: 1, height: '50vh', duration: 1.5, ease: 'power4.out' }, '-=1');
-    tl.fromTo(bar3Ref.current, { scaleY: 0 }, { scaleY: 1, height: '15vh', duration: 1.5, ease: 'power4.out' }, '-=1');
-  }, []);
+
+    // Animar cada barra con el puntaje correspondiente
+    players.forEach((_, index) => {
+      const barRef = barRefs.current[index];
+      if (barRef) {
+        tl.fromTo(barRef, 
+          { scaleY: 0 }, 
+          { scaleY: 1, height: `${players[index].score / 10}vh`, duration: 1.5, ease: 'power4.out' }
+        );
+      }
+    });
+  }, [players]); // Vuelve a ejecutar si players cambia
 
   return (
     <div className="flex flex-col items-center w-full h-full">
@@ -29,33 +45,21 @@ export default function ScoreBars() {
         Volver a Jugar
       </Button>
       <div className="flex w-full justify-center items-end h-full">
-        <div className="flex flex-col items-center w-1/3">
-          <span className="mb-2 font-bold text-text">Jugador 2</span>
-          <div
-            ref={bar1Ref}
-            className="bg-secondary w-full transform origin-bottom text-white text-lg flex items-center justify-center p-2"
-          >
-            50 pts
+        {players.map((player, index) => (
+          <div key={player.id} className="flex flex-col items-center w-1/3">
+            <span className="mb-2 font-bold text-text">Jugador {player.id}</span>
+            <div
+              ref={(el) => { barRefs.current[index] = el }} // Asignamos la referencia
+              className={`w-full transform origin-bottom text-white text-lg flex items-center justify-center p-2 ${
+                player.id === 1 ? 'bg-primary-500' : 
+                player.id === 2 ? 'bg-secondary' : 
+                'bg-accent'
+              }`}
+            >
+              {player.score} pts
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col items-center w-1/3">
-          <span className="mb-2 font-bold text-text">Jugador 1</span>
-          <div
-            ref={bar2Ref}
-            className="bg-primary-500 w-full transform origin-bottom text-white text-lg flex items-center justify-center p-2"
-          >
-            100 pts
-          </div>
-        </div>
-        <div className="flex flex-col items-center w-1/3">
-          <span className="mb-2 font-bold text-text">Jugador 3</span>
-          <div
-            ref={bar3Ref}
-            className="bg-accent w-full transform origin-bottom text-white text-lg flex items-center justify-center p-2"
-          >
-            30 pts
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

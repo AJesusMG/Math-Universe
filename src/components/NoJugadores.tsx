@@ -10,7 +10,7 @@ export default function NoJugadores() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (parseInt(numJugadores) > 0) {
+    if (parseInt(numJugadores) > 1) {
       router.push(`/rolldice?numJugadores=${numJugadores}`);
     }
   };
