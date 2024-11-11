@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { useGameTurn } from "@/hooks/useGameTurn";
 import PlayerScore from "@/components/PlayerScore";
 
+
 interface PageProps {
   searchParams: { 
     turnoJugador?: string; 
@@ -82,13 +83,16 @@ export default function Page({ searchParams }: PageProps) {
   }, [turnoJugadorRetornado, currentPoints, players, numJugadores]);  
     
   return (
-    <div className="flex flex-col w-full h-full gap-16">
+    <div className="flex flex-col w-full min-h-screen gap-16 sm:gap-8 px-4">
+      {/* Contenedor de RolltheDice */}
       <div className="flex w-full h-full items-center justify-center">
         <RolltheDice turnoJugador={turnoJugadorRetornado} numJugadores={numJugadores} />
       </div>
       <div className="flex w-full h-full items-center justify-center">
         <PlayerScore players={players} />
       </div>
+
+      {/* Contenedor de CardExercise */}
       <div className="flex w-full h-full justify-center items-center">
         <CardExercise 
           turnoJugador={turnoJugadorRetornado} 
