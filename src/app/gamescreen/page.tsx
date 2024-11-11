@@ -4,8 +4,7 @@ import CardExercise from "@/components/CardExercise";
 import RolltheDice from "@/components/RolltheDice";
 import React, { useState, useEffect } from "react";
 import { useGameTurn } from "@/hooks/useGameTurn";
-import PlayerScore from "@/components/PlayerScore";
-
+import { useRouter } from 'next/navigation';
 
 interface PageProps {
   searchParams: { 
@@ -21,6 +20,7 @@ interface Player {
 }
 
 export default function Page({ searchParams }: PageProps) {
+  const router = useRouter();
   const numJugadores = parseInt(searchParams.numJugadores || "9", 10);
   const initialTurnoJugador = parseInt(searchParams.turnoJugador || "1", 10);
   const numQuestions = parseInt(searchParams.exercises || "0", 10);
@@ -46,53 +46,38 @@ export default function Page({ searchParams }: PageProps) {
     if (currentPoints !== null) {
       let playerIndex;
   
-      // Invertir turno para manejar el desfase
-      const adjustedTurnoJugador = 
-        turnoJugadorRetornado === 1 ? numJugadores : turnoJugadorRetornado - 1;
+      // Ajustamos el turno del jugador para corregir el desfase en la asignación de puntaje
+      const adjustedTurnoJugador = turnoJugadorRetornado === 1 ? numJugadores : turnoJugadorRetornado - 1;
   
       if (numJugadores === 2) {
-        // Para 2 jugadores, ajustamos los índices directamente
         playerIndex = adjustedTurnoJugador === 1 ? 0 : 1;
       } else {
-        // Cálculo cíclico para más de 2 jugadores
         playerIndex = (adjustedTurnoJugador - 1 + numJugadores) % numJugadores;
       }
   
-  
-      // Validación del índice
       if (playerIndex >= 0 && playerIndex < players.length) {
-        // Actualizar puntajes
         const updatedPlayers = [...players];
         updatedPlayers[playerIndex].score += currentPoints;
   
-        // Guardar en localStorage
+        // Guardamos los jugadores actualizados en localStorage y el estado
         localStorage.setItem("players", JSON.stringify(updatedPlayers));
-  
-        // Actualizar estado
         setPlayers(updatedPlayers);
   
-        // Resetear estado después de asignar puntos
+        // Reset del puntaje calculado
         setCurrentPoints(null);
         setScoreMessage("");
-      } else {
-        alert("Índice de jugador fuera de rango.");
-      }
   
-      
+        // Redirige a la página de puntuaciones con el turno actual del jugador
+        router.push(`/scoretable?turnoJugador=${turnoJugadorRetornado}&numJugadores=${numJugadores}`);
+      }
     }
-  }, [turnoJugadorRetornado, currentPoints, players, numJugadores]);  
-    
+  }, [turnoJugadorRetornado, currentPoints, players, numJugadores, router]);
+  
   return (
     <div className="flex flex-col w-full min-h-screen gap-16 sm:gap-8 px-4">
-      {/* Contenedor de RolltheDice */}
       <div className="flex w-full h-full items-center justify-center">
         <RolltheDice turnoJugador={turnoJugadorRetornado} numJugadores={numJugadores} />
       </div>
-      <div className="flex w-full h-full items-center justify-center">
-        <PlayerScore players={players} />
-      </div>
-
-      {/* Contenedor de CardExercise */}
       <div className="flex w-full h-full justify-center items-center">
         <CardExercise 
           turnoJugador={turnoJugadorRetornado} 

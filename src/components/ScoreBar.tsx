@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useEffect, useRef } from 'react';
 import { Button } from '@nextui-org/react';
@@ -15,20 +15,27 @@ interface ScoreBarsProps {
 }
 
 export default function ScoreBars({ players }: ScoreBarsProps) {
-  // Usamos React.RefObject en lugar de una función de referencia directa
   const barRefs = useRef<(HTMLDivElement | null)[]>([]); // Referencias a las barras de puntuación
   const router = useRouter();
 
   useEffect(() => {
     const tl = gsap.timeline();
 
-    // Animar cada barra con el puntaje correspondiente
-    players.forEach((_, index) => {
+    // Limitar la altura máxima de las barras
+    const maxBarHeight = 70; // Límite en vh
+
+    players.forEach((player, index) => {
       const barRef = barRefs.current[index];
       if (barRef) {
-        tl.fromTo(barRef, 
-          { scaleY: 0 }, 
-          { scaleY: 1, height: `${players[index].score / 10}vh`, duration: 1.5, ease: 'power4.out' }
+        tl.fromTo(
+          barRef,
+          { scaleY: 0 },
+          {
+            scaleY: 1,
+            height: `${Math.min(player.score / 10, maxBarHeight)}vh`, // Aplica el límite
+            duration: 1.5,
+            ease: 'power4.out',
+          }
         );
       }
     });
