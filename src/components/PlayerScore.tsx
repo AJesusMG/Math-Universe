@@ -18,12 +18,16 @@ export default function PlayerScore({ players }: PlayerScoreProps) {
   }, [players, router]); // Dependencias: verificamos en cada cambio de los puntajes
 
   return (
-    <div>
-      <h1>Puntuación de los Jugadores:</h1>
-      <ul>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-text p-4">
+      <h1 className="text-3xl md:text-4xl font-bold mb-6 text-primary">Puntuación de los Jugadores</h1>
+      <ul className="w-full max-w-md bg-white rounded-lg shadow-lg p-4 divide-y divide-secondary">
         {players.map((player) => (
-          <li key={player.id}>
-            Jugador {player.id}: {player.score} puntos
+          <li
+            key={player.id}
+            className="flex justify-between items-center py-4 text-lg font-medium"
+          >
+            <span className="text-accent">Jugador {player.id}</span>
+            <span className="text-primary">{player.score} puntos</span>
           </li>
         ))}
       </ul>
