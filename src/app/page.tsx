@@ -11,7 +11,7 @@ export default function Home() {
       {/* Contenedor de la imagen */}
       <div className="flex items-center justify-center w-full h-full mt-12 sm:mt-4 z-10">
         <Image
-          src="/Logo-1.webp"
+          src="/Logo_2.png"
           width={250}    // Tamaño menor en móviles
           height={250}   // Tamaño menor en móviles
           alt="Math Universe Logo"

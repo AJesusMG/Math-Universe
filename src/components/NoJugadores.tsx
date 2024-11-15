@@ -11,7 +11,7 @@ export default function NoJugadores() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (parseInt(numJugadores) > 1) {
-      router.push(`/rolldice?numJugadores=${numJugadores}`);
+      router.push(`/scorescreen?numJugadores=${numJugadores}`);
     }
   };
 
@@ -30,7 +30,7 @@ export default function NoJugadores() {
         onChange={(e) => setNumJugadores(e.target.value)}
       />
       <Button type="submit" color="primary" size="lg" className="text-xl">
-        Comenzar juego!
+        Siguiente
       </Button>
     </form>
   );
