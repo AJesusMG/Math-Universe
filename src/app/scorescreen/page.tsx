@@ -1,9 +1,22 @@
-import NoJugadores from "@/components/NoJugadores";
+'use client'
 import ScoreButtons from "@/components/ScoreButtons";
 import Image from "next/image";
 import React from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
+  const searchParams = useSearchParams(); 
+  const numJugadores = parseInt(searchParams.get("numJugadores") || "9", 10);
+
+  const handleScoreSelect = (score: number) => {
+    // Guardar el scoreWinner en localStorage
+    localStorage.setItem("scoreWinner", JSON.stringify(score));
+
+    // Redirigir a la pantalla de dificultad con el parámetro numJugadores
+    router.push(`/difficultyscreen?numJugadores=${numJugadores}`);
+  };
+
   return (
     <div className="flex flex-col w-full h-screen items-center px-4 gap-8 lg:gap-16">
       {/* Contenedor de la imagen */}
@@ -23,7 +36,7 @@ export default function Page() {
           Escoge la puntuación <br /> máxima
         </h1>
         <div className="w-full sm:w-3/4 md:w-1/2 lg:w-1/3">
-          <ScoreButtons />
+          <ScoreButtons onScoreSelect={handleScoreSelect} />
         </div>
       </div>
       <footer className="text-sm text-gray-500 text-center">

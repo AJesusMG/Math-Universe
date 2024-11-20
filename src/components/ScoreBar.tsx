@@ -11,7 +11,7 @@ interface Player {
 }
 
 interface ScoreBarsProps {
-  players: Player[];
+  players?: Player[]; // Hacer que players sea opcional
 }
 
 export default function ScoreBars({ players }: ScoreBarsProps) {
@@ -19,6 +19,8 @@ export default function ScoreBars({ players }: ScoreBarsProps) {
   const router = useRouter();
 
   useEffect(() => {
+    if (!players || players.length === 0) return; // No ejecutar la animación si no hay jugadores
+
     const tl = gsap.timeline();
 
     // Limitar la altura máxima de las barras
@@ -41,32 +43,47 @@ export default function ScoreBars({ players }: ScoreBarsProps) {
     });
   }, [players]); // Vuelve a ejecutar si players cambia
 
+  const handleResetGame = () => {
+    localStorage.removeItem('players');
+    localStorage.removeItem('scoreWinner');
+    localStorage.removeItem('selectedDifficulty');
+    router.push('/no-players');
+  };
+
   return (
     <div className="flex flex-col items-center w-full h-full">
       <Button
         color="primary"
         size="lg"
         className="text-xl py-8"
-        onClick={() => router.push('/no-players')}
+        onClick={handleResetGame} // Llamar a la función para reiniciar el juego
       >
         Volver a Jugar
       </Button>
       <div className="flex w-full justify-center items-end h-full">
-        {players.map((player, index) => (
-          <div key={player.id} className="flex flex-col items-center w-1/3">
-            <span className="mb-2 font-bold text-text">Jugador {player.id}</span>
-            <div
-              ref={(el) => { barRefs.current[index] = el }} // Asignamos la referencia
-              className={`w-full transform origin-bottom text-white text-lg flex items-center justify-center p-2 ${
-                player.id === 1 ? 'bg-primary-500' : 
-                player.id === 2 ? 'bg-secondary' : 
-                'bg-accent'
-              }`}
-            >
-              {player.score} pts
+        {(!players || players.length === 0) ? (
+          // Mostrar mensaje si no hay jugadores
+          <p className="text-center text-lg font-semibold text-gray-500">
+            No hay puntuaciones que mostrar.
+          </p>
+        ) : (
+          // Mostrar las barras de puntuación si hay jugadores
+          players.map((player, index) => (
+            <div key={player.id} className="flex flex-col items-center w-1/3">
+              <span className="mb-2 font-bold text-text">Jugador {player.id}</span>
+              <div
+                ref={(el) => { barRefs.current[index] = el }} // Asignamos la referencia
+                className={`w-full transform origin-bottom text-white text-lg flex items-center justify-center p-2 ${
+                  player.id === 1 ? 'bg-primary-500' : 
+                  player.id === 2 ? 'bg-secondary' : 
+                  'bg-accent'
+                }`}
+              >
+                {player.score} pts
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

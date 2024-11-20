@@ -1,21 +1,22 @@
 import React, { useEffect } from "react";
-import { useRouter } from "next/navigation"; // Importamos el router para redirecciones
+import { useRouter } from "next/navigation";
 
 interface PlayerScoreProps {
   players: { id: number; score: number }[];
+  scoreWinner: number; // Puntaje objetivo
 }
 
-export default function PlayerScore({ players }: PlayerScoreProps) {
+export default function PlayerScore({ players, scoreWinner }: PlayerScoreProps) {
   const router = useRouter();
 
   useEffect(() => {
-    // Verificar si algún jugador alcanza los 1000 puntos
-    const winner = players.find((player) => player.score >= 1000);
+    // Verificar si algún jugador alcanza el puntaje objetivo
+    const winner = players.find((player) => player.score >= scoreWinner);
     if (winner) {
-      alert(`¡Jugador ${winner.id} ha alcanzado los 1000 puntos!`);
+      alert(`¡Jugador ${winner.id} ha alcanzado ${scoreWinner} puntos!`);
       router.push("/podium");
     }
-  }, [players, router]); // Dependencias: verificamos en cada cambio de los puntajes
+  }, [players, scoreWinner, router]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-text p-4">

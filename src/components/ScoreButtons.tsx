@@ -1,8 +1,11 @@
 import React from "react";
 import { Button } from "@nextui-org/react";
 
-export default function ScoreButtons() {
-  
+type ScoreButtonsProps = {
+  onScoreSelect: (score: number) => void;
+};
+
+export default function ScoreButtons({ onScoreSelect }: ScoreButtonsProps) {
   type ButtonColor = "primary" | "secondary" | "default" | "success" | "warning" | "danger";
 
   const scores: { value: number; color: ButtonColor }[] = [
@@ -19,10 +22,11 @@ export default function ScoreButtons() {
       {scores.map((score, index) => (
         <Button
           key={index}
-          type="submit"
+          type="button"
           color={score.color}
           size="lg"
           className="text-lg font-bold"
+          onClick={() => onScoreSelect(score.value)} // Llama a la función al hacer clic
         >
           {score.value}
         </Button>
