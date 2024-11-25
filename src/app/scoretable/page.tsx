@@ -1,6 +1,6 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import PlayerScore from "@/components/PlayerScore";
 
 interface PageProps {
@@ -27,6 +27,19 @@ export default function Page({ searchParams }: PageProps) {
       : Array.from({ length: numJugadores }, (_, i) => ({ id: i + 1, score: 0 }));
   });
 
+  // Obtener el puntaje objetivo (scoreWinner) del localStorage
+  const [scoreWinner, setScoreWinner] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Obtener el puntaje objetivo desde localStorage y convertirlo a número
+    const scoreConfig = localStorage.getItem("scoreWinner");
+    if (scoreConfig) {
+      setScoreWinner(Number(scoreConfig)); // Convertir el valor a número
+    } else {
+      setScoreWinner(1000); // Valor por defecto si no se encuentra en localStorage
+    }
+  }, []);
+
   useEffect(() => {
     // Redirigir a rolldice después de 10 segundos para que el siguiente jugador tenga su turno
     const timer = setTimeout(() => {
@@ -39,7 +52,7 @@ export default function Page({ searchParams }: PageProps) {
   return (
     <div className="flex flex-col w-full min-h-full gap-16 sm:gap-8 px-4">
       <div className="flex w-full h-full items-center justify-center">
-        <PlayerScore players={players} />
+        <PlayerScore players={players} scoreWinner={scoreWinner || 1000} />
       </div>
     </div>
   );

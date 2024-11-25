@@ -12,6 +12,9 @@ export default function NoJugadores() {
     e.preventDefault();
     if (parseInt(numJugadores) > 1) {
       router.push(`/scorescreen?numJugadores=${numJugadores}`);
+        localStorage.removeItem('players');
+        localStorage.removeItem('scoreWinner');
+        localStorage.removeItem('selectedDifficulty');
     }
   };
 

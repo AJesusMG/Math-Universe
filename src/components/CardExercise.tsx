@@ -4,10 +4,12 @@ import { gsap } from "gsap";
 import { useRouter } from "next/navigation";
 import QuestionPool from "./QuestionPool";
 
-// Define la interfaz para el tipo de cada pregunta
+type Difficulty = "Fácil" | "Intermedio" | "Difícil";
+
 interface Question {
   question: string;
   answer: number;
+  category: string; // Añadimos el campo category
 }
 
 interface CardExerciseProps {
@@ -16,6 +18,8 @@ interface CardExerciseProps {
   onNextTurn: () => void;
   onPointsCalculated: (points: number) => void;
   numQuestions: number;
+  selectedDifficulty: Difficulty;
+  onCategoriesExtracted: (categories: string[]) => void; // Nueva prop
 }
 
 export default function CardExercise({
@@ -24,19 +28,29 @@ export default function CardExercise({
   onNextTurn,
   onPointsCalculated,
   numQuestions,
+  selectedDifficulty,
+  onCategoriesExtracted,
 }: CardExerciseProps) {
   const [answer, setAnswer] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [totalPoints, setTotalPoints] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
-  const [questions, setQuestions] = useState<Question[]>([]); // Añadimos el tipo Question aquí
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [categories, setCategories] = useState<string[]>([]); 
   const router = useRouter();
 
   useEffect(() => {
-    const loadedQuestions: Question[] = QuestionPool({ numQuestions });
+    const loadedQuestions: Question[] = QuestionPool({
+      numQuestions,
+      selectedDifficulty,
+    });
     setQuestions(loadedQuestions);
-  }, [numQuestions]);
+
+    const uniqueCategories = [...new Set(loadedQuestions.map((q) => q.category))];
+    setCategories(uniqueCategories); 
+    onCategoriesExtracted(uniqueCategories); 
+  }, [numQuestions, selectedDifficulty, onCategoriesExtracted]);
 
   useEffect(() => {
     if (timeLeft > 0 && !isComplete) {
@@ -59,7 +73,7 @@ export default function CardExercise({
       duration: 1,
       onComplete: () => {
         gsap.to(".bonus-points", { opacity: 0, y: 0, duration: 1 });
-      }
+      },
     });
   };
 
@@ -95,15 +109,22 @@ export default function CardExercise({
   useEffect(() => {
     if (isComplete) {
       onPointsCalculated(totalPoints);
-      const nextTurn = turnoJugador % numJugadores === 0 ? numJugadores : (turnoJugador % numJugadores);
-      router.push(`/rolldice/?turnoJugador=${nextTurn}&numJugadores=${numJugadores}`);
+      const nextTurn =
+        turnoJugador % numJugadores === 0
+          ? numJugadores
+          : turnoJugador % numJugadores;
+      router.push(
+        `/rolldice/?turnoJugador=${nextTurn}&numJugadores=${numJugadores}`
+      );
     }
   }, [isComplete, totalPoints]);
 
   return (
     <div className="flex flex-col items-center gap-4 relative">
       <div className="w-full h-full">
-        <h1 className="text-center text-secondary font-bold text-3xl">{timeLeft}s</h1>
+        <h1 className="text-center text-secondary font-bold text-3xl">
+          {timeLeft}s
+        </h1>
       </div>
 
       <div className="bonus-points text-3xl text-yellow-300 absolute z-50">
@@ -114,7 +135,9 @@ export default function CardExercise({
         <CardBody className="flex flex-col gap-8 py-2 justify-center items-center">
           {isComplete ? (
             <h1 className="text-3xl text-white text-center">
-              {timeLeft === 0 ? "Perdiste. Turno del siguiente jugador." : "¡Felicidades! Turno del siguiente jugador."}
+              {timeLeft === 0
+                ? "Perdiste. Turno del siguiente jugador."
+                : "¡Felicidades! Turno del siguiente jugador."}
             </h1>
           ) : (
             <>
